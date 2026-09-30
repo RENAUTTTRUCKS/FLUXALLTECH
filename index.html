@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1f33">
+<title>Générateur Code 39</title>
+<style>
+:root{--navy:#0b1f33;--yellow:#ffd400;--bg:#f2f4f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#111;min-height:100vh}
+header{background:var(--navy);color:white;text-align:center;padding:22px 16px 18px;font-weight:800;letter-spacing:.5px;font-size:22px}
+main{max-width:520px;margin:auto;padding:18px}
+label{display:block;font-weight:700;margin:4px 0 8px}
+input{width:100%;font-size:26px;padding:15px;border:2px solid #cbd2d9;border-radius:12px;text-align:center;outline:none;background:white}
+input:focus{border-color:var(--navy)}
+button{width:100%;border:0;border-radius:12px;padding:16px;margin-top:12px;font-size:18px;font-weight:800;cursor:pointer}
+.primary{background:var(--yellow);color:#111}.secondary{background:var(--navy);color:#fff}.light{background:#fff;border:2px solid #d6dbe0}
+.card{background:white;border-radius:16px;padding:18px;margin-top:18px;box-shadow:0 3px 15px #00000012}
+#barcode{width:100%;overflow:hidden;text-align:center;padding:12px 0 4px}#barcode svg{max-width:100%;height:auto}
+.value{text-align:center;font-size:20px;font-weight:800;margin-top:8px;letter-spacing:2px}
+.error{color:#b00020;font-weight:700;text-align:center;min-height:22px;margin-top:8px}
+.small{text-align:center;color:#66717c;font-size:13px;margin-top:12px}
+@media print{header,form,.small,.no-print{display:none!important}body{background:white}.card{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+<header>GÉNÉRATEUR CODE 39</header>
+<main>
+<form id="form">
+<label for="number">Numéro</label>
+<input id="number" inputmode="numeric" autocomplete="off" autofocus placeholder="Ex. 123456789">
+<button class="primary" type="submit">GÉNÉRER LE CODE-BARRE</button>
+</form>
+<div id="error" class="error"></div>
+<section class="card" id="result" hidden>
+<div id="barcode"></div>
+<div class="value" id="value"></div>
+<button class="secondary no-print" type="button" onclick="window.print()">IMPRIMER</button>
+<button class="light no-print" type="button" id="newBtn">NOUVEAU NUMÉRO</button>
+</section>
+<div class="small">Code 39 • Un seul numéro à la fois</div>
+</main>
+<script>
+// Code 39: 9 éléments (barres/espaces), 3 larges, 6 étroits.
+const patterns={
+'0':'nnnwwnwnn','1':'wnnwnnnnw','2':'nnwwnnnnw','3':'wnwwnnnnn','4':'nnnwwnnnw','5':'wnnwwnnnn','6':'nnwwwnnnn','7':'nnnwnnwnw','8':'wnnwnnwnn','9':'nnwwnnwnn',
+'A':'wnnnnwnnw','B':'nnwnnwnnw','C':'wnwnnwnnn','D':'nnnnwwnnw','E':'wnnnwwnnn','F':'nnwnwwnnn','G':'nnnnnwwnw','H':'wnnnnwwnn','I':'nnwnnwwnn','J':'nnnnwwwnn',
+'K':'wnnnnnnww','L':'nnwnnnnww','M':'wnwnnnnwn','N':'nnnnwnnww','O':'wnnnwnnwn','P':'nnwnwnnwn','Q':'nnnnnnwww','R':'wnnnnnwwn','S':'nnwnnnwwn','T':'nnnnwnwwn',
+'U':'wwnnnnnnw','V':'nwwnnnnnw','W':'wwwnnnnnn','X':'nwnnwnnnw','Y':'wwnnwnnnn','Z':'nwwnwnnnn','-':'nwnnnnwnw','.':'wwnnnnwnn',' ':'nwwnnnwnn','$':'nwnwnwnnn','/':'nwnwnnnwn','+':'nwnnnwnwn','%':'nnnwnwnwn','*':'nwnnwnwnn'
+};
+function makeCode39(data){
+ const text='*'+data.toUpperCase()+'*'; let x=10, parts=[]; const narrow=3, wide=7, gap=3, h=100;
+ for(const ch of text){const p=patterns[ch]; for(let i=0;i<9;i++){const w=p[i]==='w'?wide:narrow; if(i%2===0) parts.push(`<rect x="${x}" y="10" width="${w}" height="${h}"/>`); x+=w;} x+=gap;}
+ const width=x+10; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 120" role="img" aria-label="Code 39 ${data}"><rect width="100%" height="100%" fill="white"/>${parts.join('')}</svg>`;
+}
+const input=document.getElementById('number'), result=document.getElementById('result'), barcode=document.getElementById('barcode'), value=document.getElementById('value'), error=document.getElementById('error');
+document.getElementById('form').addEventListener('submit',e=>{e.preventDefault(); const v=input.value.trim(); error.textContent=''; if(!/^\d+$/.test(v)){error.textContent='Veuillez saisir uniquement des chiffres.';input.focus();return;} barcode.innerHTML=makeCode39(v); value.textContent=v; result.hidden=false; input.value=''; input.focus();});
+document.getElementById('newBtn').addEventListener('click',()=>{result.hidden=true;input.focus();});
+</script>
+</body>
+</html>
